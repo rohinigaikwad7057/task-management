@@ -1,83 +1,124 @@
-import React from 'react';
+import React from "react";
+import TaskCard from "./taskCard";
 
-const Dashboard = ({ task, updateTaskStatus, deleteTask }) => {
+const Dashboard = ({ task, updateTaskStatus, deleteTask, onEdit }) => {
+    const todoTasks = task.filter((t) => t.status === "todo");
+    const inProgress = task.filter((t) => t.status === "progress");
+    const completedTasks = task.filter((t) => t.status === "completed");
+
     return (
-        <div className="p-5 bg-gray-100 flex-1">
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5 items-start">
+        <div className="p-6 bg-gray-100 flex-1">
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
 
-                {/* To Do */}
-                <div className=" w-full lg:w-78 bg-white p-4 rounded shadow flex flex-col">
-                    <h2 className="font-bold mb-3">To Do</h2>
-                    <div className="rounded p-3 space-y-3 overflow-y-auto">
-                        {task.filter((t) => t.status === 'todo')
+                {/* ================= TO DO ================= */}
+                <div className="bg-white rounded-2xl shadow-sm  flex flex-col h-[75vh]">
 
-                            .map((t) => (
-                                <div key={t.id} className="bg-gray-100 p-2 rounded mb-2 flex justify-between items-start gap-2">
-                                    <div className="flex-1 wrap-break-word break-all">
-                                        {t.title}
-                                    </div>
-                                    <div className='flex gap-3 items-center'>
-                                        <button
-                                            onClick={() => updateTaskStatus(t.id, "progress")}
-                                            className="bg-gray-100 text-gray-500 text-sm whitespace-nowrap"
-                                        >
-                                            Start
-                                        </button>
-                                        <button
-                                            onClick={() => deleteTask(t.id, "progress")}
-                                            className="bg-gray-100 text-red-500 text-sm whitespace-nowrap active:hover"
-                                        >
-                                            Delete
-                                        </button>
-                                    </div>
-                                </div>
-                            ))}
+                    {/* Header */}
+                    <div className="flex justify-between items-center px-4 py-3 ">
+                        <h2 className="font-semibold text-gray-700">
+                            To Do ({todoTasks.length})
+                        </h2>
+                        <span className="text-gray-400 cursor-pointer">⋯</span>
+                    </div>
+
+                    {/* Task List */}
+                    <div className="flex-1 overflow-y-auto p-4 space-y-4">
+                        {todoTasks.length === 0 ? (
+                            <p className="text-gray-400 text-sm">No tasks</p>
+                        ) : (
+                            todoTasks.map((t) => (
+                                <TaskCard
+                                    key={t.id}
+                                    task={t}
+                                    onStart={() => updateTaskStatus(t.id, "progress")}
+                                    onDelete={() => deleteTask(t.id)}
+                                    onEdit={() => onEdit(t)}
+                                />
+                            ))
+                        )}
+                    </div>
+
+                    {/* Add Button */}
+                    <div className="p-4">
+                        <button className="w-full bg-gray-100 hover:bg-gray-200 text-sm py-2 rounded-md">
+                            + Add task
+                        </button>
                     </div>
                 </div>
 
-                {/* In Progress */}
-                <div className=" w-full lg:w-78 bg-white p-4 rounded shadow flex flex-col">
-                    <h2 className="font-bold mb-3">In Progress</h2>
-                    <div className="rounded p-3 space-y-3 overflow-y-auto">
-                        {task.filter((t) => t.status === 'progress')
-                            .map((t) => (
-                                <div key={t.id} className="bg-gray-100 p-2 rounded mb-2 flex justify-between">
-                                    {t.title}
-                                    <button
-                                        onClick={() => updateTaskStatus(t.id, "completed")}
-                                        className="text-blue-500 text-sm whitespace-nowrap"
-                                    >
-                                        Complete
-                                    </button>
-                                </div>
-                            ))}
+                {/* ================= IN PROGRESS ================= */}
+                <div className="bg-white rounded-2xl shadow-sm  flex flex-col h-[75vh]">
 
+                    {/* Header */}
+                    <div className="flex justify-between items-center px-4 py-3">
+                        <h2 className="font-semibold text-gray-700">
+                            In Progress ({inProgress.length})
+                        </h2>
+                        <span className="text-gray-400 cursor-pointer">⋯</span>
+                    </div>
+
+                    {/* Task List */}
+                    <div className="flex-1 overflow-y-auto p-4 space-y-4">
+                        {inProgress.length === 0 ? (
+                            <p className="text-gray-400 text-sm">No tasks</p>
+                        ) : (
+                            inProgress.map((t) => (
+                                <TaskCard
+                                    key={t.id}
+                                    task={t}
+                                    onComplete={() => updateTaskStatus(t.id, "completed")}
+                                    onDelete={() => deleteTask(t.id)}
+                                    onEdit={() => onEdit(t)}
+                                />
+                            ))
+                        )}
+                    </div>
+
+                    {/* Add Button */}
+                    <div className="p-4">
+                        <button className="w-full bg-gray-100 hover:bg-gray-200 text-sm py-2 rounded-md">
+                            + Add task
+                        </button>
                     </div>
                 </div>
 
-                {/* Completed */}
-                <div className=" w-full lg:w-78 bg-white p-4 rounded shadow flex flex-col">
-                    <h2 className="font-bold mb-3">Completed</h2>
-                    <div className="rounded p-3 space-y-3 overflow-y-auto">
-                        {task.filter((ele) => ele.status === 'completed')
-                            .map((ele) => (
-                                <div key={ele.id} className="bg-gray-100 p-2 rounded mb-2 flex justify-between">
-                                    {ele.title}
-                                    <span className="text-green-500 font-bold" onClick={() => updateTaskStatus(ele.id, 'done')}>Done</span>
-                                    {/* <button
-                                                onClick={() => updateTaskStatus(ele.id, 'done')}
-                                                className="text-green-500 text-sm">
-                                                Done
-                                            </button> */}
-                                </div>
-                            ))}
+                {/* ================= COMPLETED ================= */}
+                <div className="bg-white rounded-2xl shadow-sm  flex flex-col h-[75vh]">
 
+                    {/* Header */}
+                    <div className="flex justify-between items-center px-4 py-3">
+                        <h2 className="font-semibold text-gray-700">
+                            Completed ({completedTasks.length})
+                        </h2>
+                        <span className="text-gray-400 cursor-pointer">⋯</span>
+                    </div>
+
+                    {/* Task List */}
+                    <div className="flex-1 overflow-y-auto p-4 space-y-4">
+                        {completedTasks.length === 0 ? (
+                            <p className="text-gray-400 text-sm">No tasks</p>
+                        ) : (
+                            completedTasks.map((t) => (
+                                <TaskCard
+                                    key={t.id}
+                                    task={t}
+                                    onDelete={() => deleteTask(t.id)}
+                                />
+                            ))
+                        )}
+                    </div>
+
+                    {/* Add Button */}
+                    <div className="p-4">
+                        <button className="w-full bg-gray-100 hover:bg-gray-200 text-sm py-2 rounded-md">
+                            + Add task
+                        </button>
                     </div>
                 </div>
 
             </div>
         </div>
     );
-}
+};
 
 export default Dashboard;
