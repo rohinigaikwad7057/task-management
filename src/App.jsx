@@ -14,6 +14,7 @@ const App = () => {
   const [editTask, setEditTask] = useState(null);
   const [editTitle, setEditTitle] = useState("");
   const [editPriority, setEditPriority] = useState("medium");
+  const [openSidebar, setOpenSidebar] = useState(false);
 
 
   useEffect(() => {
@@ -70,22 +71,25 @@ const App = () => {
     setEditTask(null);
   };
   return (
-    <div className="flex h-screen bg-[#f5f7fb]">
-      <Sidebar></Sidebar>
-      <div className="flex-1 flex flex-col">
+    <div className="flex h-screen overflow-hidden bg-[#f5f7fb]">
+      <Sidebar openSidebar={openSidebar} setOpenSidebar={setOpenSidebar} />
+      <div className="flex-1 flex flex-col overflow-hidden">
         <Navbar
           input={input}
           setInput={setInput}
           addTask={addTask}
           priority={priority}
           setPriority={setPriority}
+           setOpenSidebar={setOpenSidebar}
         />
-        <Dashboard
-          task={task}
-          updateTaskStatus={updateTaskStatus}
-          deleteTask={deleteTask}
-          onEdit={handleEditClick}>
-        </Dashboard>
+        <div className="flex-1 overflow-auto">
+  <Dashboard
+    task={task}
+    updateTaskStatus={updateTaskStatus}
+    deleteTask={deleteTask}
+    onEdit={handleEditClick}
+  />
+</div>
         {editTask && (
           <div className="fixed inset-0 bg-black bg-opacity-30 flex items-center justify-center">
 

@@ -7,14 +7,14 @@ const Dashboard = ({ task, updateTaskStatus, deleteTask, onEdit }) => {
     const completedTasks = task.filter((t) => t.status === "completed");
 
     return (
-        <div className="p-6 bg-gray-100 flex-1">
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+        <div className="px-2 py-4 md:p-6 bg-gray-100 flex-1">
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 md:gap-6">
 
                 {/* ================= TO DO ================= */}
-                <div className="bg-white rounded-2xl shadow-sm  flex flex-col h-[75vh]">
+               <div className="bg-white rounded-xl shadow-md flex flex-col min-h-300px md:h-[calc(100vh-120px)]">
 
                     {/* Header */}
-                    <div className="flex justify-between items-center px-4 py-3 ">
+                    <div className="flex justify-between items-center px-4 py-3 border-b ">
                         <h2 className="font-semibold text-gray-700">
                             To Do ({todoTasks.length})
                         </h2>
@@ -47,10 +47,10 @@ const Dashboard = ({ task, updateTaskStatus, deleteTask, onEdit }) => {
                 </div>
 
                 {/* ================= IN PROGRESS ================= */}
-                <div className="bg-white rounded-2xl shadow-sm  flex flex-col h-[75vh]">
+                <div className="bg-white rounded-xl shadow-md flex flex-col min-h-300px md:h-[calc(100vh-120px)]">
 
                     {/* Header */}
-                    <div className="flex justify-between items-center px-4 py-3">
+                    <div className="flex justify-between items-center px-4 py-3 border-b">
                         <h2 className="font-semibold text-gray-700">
                             In Progress ({inProgress.length})
                         </h2>
@@ -83,10 +83,10 @@ const Dashboard = ({ task, updateTaskStatus, deleteTask, onEdit }) => {
                 </div>
 
                 {/* ================= COMPLETED ================= */}
-                <div className="bg-white rounded-2xl shadow-sm  flex flex-col h-[75vh]">
+               <div className="bg-white rounded-xl shadow-md flex flex-col min-h-300px md:h-[calc(100vh-120px)]">
 
                     {/* Header */}
-                    <div className="flex justify-between items-center px-4 py-3">
+                    <div className="flex justify-between items-center px-4 py-3 border-b">
                         <h2 className="font-semibold text-gray-700">
                             Completed ({completedTasks.length})
                         </h2>
