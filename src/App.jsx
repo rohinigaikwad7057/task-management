@@ -1,143 +1,124 @@
+import React, { useState } from "react";
+// import Navbar from "./Component/navbar";
+// import Dashboard from "./components/dashboard";
+// import useTasks from "./hooks/useTasks";
+import Navbar from "./Component/navbar";
+import Dashboard from "./Pages/dashboard";
+import useTasks from "./Fetures/Hooks/useTasks";
+import Sidebar from "./Component/sidebar";
 
-import Navbar from "./components/navbar";
-import Sidebar from "./components/sidebar";
-import React, { useEffect, useState } from 'react';
-import Dashboard from "./components/dashboard";
 
 const App = () => {
-  const [task, setTask] = useState(() => {
-    const saved = localStorage.getItem("tasks");
-    return saved ? JSON.parse(saved) : [];
-  });
-  const [input, setInput] = useState('')
-  const [priority, setPriority] = useState("medium");
-  const [editTask, setEditTask] = useState(null);
-  const [editTitle, setEditTitle] = useState("");
-  const [editPriority, setEditPriority] = useState("medium");
   const [openSidebar, setOpenSidebar] = useState(false);
 
+  const {
+    task,
+    input,
+    setInput,
+    priority,
+    setPriority,
+    addTask,
+    deleteTask,
+    updateTaskStatus,
+    editTask,
+    editTitle,
+    setEditTitle,
+    editPriority,
+    setEditPriority,
+    handleEditClick,
+    saveEditTask,
+    setEditTask,
+    moveTask,
+    searchFilter,
+    setSearchFilter,
+    filterPriority,
+    setFilterPriority
+  } = useTasks();
 
-  useEffect(() => {
-    localStorage.setItem("tasks", JSON.stringify(task));
-  }, [task]);
-
-  const addTask = () => {
-    if (!input) return;
-
-    const newTask = {
-      id: Date.now(),
-      title: input,
-      status: 'todo',
-      priority: priority,
-      createdAt: new Date().toISOString()
-    }
-    setTask([...task, newTask])
-    setInput('')
-  }
-
-  const deleteTask = (id) => {
-    setTask(task.filter(t => t.id !== id));
-
-  }
-  const updateTaskStatus = ((id, newStatus) => {
-    console.log(id, newStatus)
-    const updateTasks = task.map((ele) => {
-      if (ele.id === id) {
-        return {
-          ...ele,
-          status: newStatus
-        }
-      }
-      return ele;
-    })
-    setTask(updateTasks)
-    console.log(updateTasks)
-  })
-
-  const handleEditClick = (task) => {
-    setEditTask(task);
-    setEditTitle(task.title);
-    setEditPriority(task.priority);
-  };
-
-  const saveEditTask = () => {
-    const updated = task.map((t) =>
-      t.id === editTask.id
-        ? { ...t, title: editTitle, priority: editPriority }
-        : t
-    );
-
-    setTask(updated);
-    setEditTask(null);
-  };
   return (
     <div className="flex h-screen overflow-hidden bg-[#f5f7fb]">
-      <Sidebar openSidebar={openSidebar} setOpenSidebar={setOpenSidebar} />
+
+      {/* Sidebar */}
+      <Sidebar
+        openSidebar={openSidebar}
+        setOpenSidebar={setOpenSidebar}
+      />
+
+      {/* Main */}
       <div className="flex-1 flex flex-col overflow-hidden">
+
+        {/* Navbar */}
         <Navbar
           input={input}
           setInput={setInput}
           addTask={addTask}
           priority={priority}
           setPriority={setPriority}
-           setOpenSidebar={setOpenSidebar}
+          setOpenSidebar={setOpenSidebar}
         />
+
+        {/* Dashboard */}
         <div className="flex-1 overflow-auto">
-  <Dashboard
-    task={task}
-    updateTaskStatus={updateTaskStatus}
-    deleteTask={deleteTask}
-    onEdit={handleEditClick}
-  />
-</div>
-        {editTask && (
-          <div className="fixed inset-0 bg-black bg-opacity-30 flex items-center justify-center">
+          <Dashboard
+            task={task}
+            updateTaskStatus={updateTaskStatus}
+            deleteTask={deleteTask}
+            onEdit={handleEditClick}
+           moveTask={moveTask}
+          search={searchFilter}
+  setSearch={setSearchFilter}
+  filterPriority={filterPriority}
+  setFilterPriority={setFilterPriority}
+          />
+        </div>
 
-            <div className="bg-white p-6 rounded-xl w-80 space-y-4">
-
-              <h2 className="text-lg font-semibold">Edit Task</h2>
-
-              {/* Title */}
-              <input
-                value={editTitle}
-                onChange={(e) => setEditTitle(e.target.value)}
-                className="w-full border p-2 rounded"
-              />
-
-              {/* Priority */}
-              <select
-                value={editPriority}
-                onChange={(e) => setEditPriority(e.target.value)}
-                className="w-full border p-2 rounded"
-              >
-                <option value="low">Low</option>
-                <option value="medium">Medium</option>
-                <option value="high">High</option>
-              </select>
-
-              {/* Buttons */}
-              <div className="flex justify-end gap-2">
-                <button
-                  onClick={() => setEditTask(null)}
-                  className="px-3 py-1 bg-gray-200 rounded"
-                >
-                  Cancel
-                </button>
-
-                <button
-                  onClick={saveEditTask}
-                  className="px-3 py-1 bg-blue-500 text-white rounded"
-                >
-                  Save
-                </button>
-              </div>
-
-            </div>
-          </div>
-        )}
       </div>
+
+      {/* Modal */}
+      {editTask && (
+        <div className="fixed inset-0 bg-black/30 flex items-center justify-center z-50">
+
+          <div className="bg-white p-6 rounded-xl w-80 space-y-4">
+
+            <h2 className="text-lg font-semibold">Edit Task</h2>
+
+            <input
+              value={editTitle}
+              onChange={(e) => setEditTitle(e.target.value)}
+              className="w-full border p-2 rounded"
+            />
+
+            <select
+              value={editPriority}
+              onChange={(e) => setEditPriority(e.target.value)}
+              className="w-full border p-2 rounded"
+            >
+              <option value="low">Low</option>
+              <option value="medium">Medium</option>
+              <option value="high">High</option>
+            </select>
+
+            <div className="flex justify-end gap-2">
+              <button
+                onClick={() => setEditTask(null)}
+                className="px-3 py-1 bg-gray-200 rounded"
+              >
+                Cancel
+              </button>
+
+              <button
+                onClick={saveEditTask}
+                className="px-3 py-1 bg-blue-500 text-white rounded"
+              >
+                Save
+              </button>
+            </div>
+
+          </div>
+        </div>
+      )}
     </div>
   );
-}
+};
 
 export default App;
