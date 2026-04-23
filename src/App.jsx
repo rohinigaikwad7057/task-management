@@ -19,7 +19,6 @@ const App = () => {
     setPriority,
     addTask,
     deleteTask,
-    updateTaskStatus,
     editTask,
     editTitle,
     setEditTitle,
@@ -29,10 +28,9 @@ const App = () => {
     saveEditTask,
     setEditTask,
     moveTask,
-    searchFilter,
-    setSearchFilter,
+    search,
     filterPriority,
-    setFilterPriority
+    setSearchParams
   } = useTasks();
 
   return (
@@ -61,14 +59,12 @@ const App = () => {
         <div className="flex-1 overflow-auto">
           <Dashboard
             task={task}
-            updateTaskStatus={updateTaskStatus}
             deleteTask={deleteTask}
             onEdit={handleEditClick}
-           moveTask={moveTask}
-          search={searchFilter}
-  setSearch={setSearchFilter}
-  filterPriority={filterPriority}
-  setFilterPriority={setFilterPriority}
+            moveTask={moveTask}
+            search={search}
+            filterPriority={filterPriority}
+            setSearchParams={setSearchParams}
           />
         </div>
 

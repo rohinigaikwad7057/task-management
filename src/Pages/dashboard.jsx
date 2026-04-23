@@ -1,40 +1,46 @@
 import React from "react";
 import { DragDropContext, Droppable, Draggable } from "@hello-pangea/dnd";
 import TaskCard from "../Fetures/TaskCard";
+import useDebounce from "../Fetures/Hooks/useDebounce";
+
 
 const Dashboard = ({
   task,
   deleteTask,
   onEdit,
   moveTask,
+  // setFilterPriority,
   search,
-  setSearch,
   filterPriority,
-  setFilterPriority,
+  setSearchParams
+
 }) => {
 
-  // ✅ FILTER LOGIC
+  const debouncedSearch = useDebounce(search, 400);
+
+  // FILTER LOGIC
   const filteredTasks = task.filter((t) => {
-    const matchesSearch = t.title
-      .toLowerCase()
-      .includes(search.toLowerCase());
+    const title = t?.title?.toLowerCase() || "";
+    const searchText = debouncedSearch?.toLowerCase() || "";
+
+    const matchesSearch = title.includes(searchText);
 
     const matchesPriority =
       filterPriority === "all"
         ? true
         : t.priority === filterPriority;
-
     return matchesSearch && matchesPriority;
+
   });
 
-  // ✅ CREATE COLUMNS
+  // CREATE COLUMNS
   const columns = {
     todo: filteredTasks.filter((t) => t.status === "todo"),
     progress: filteredTasks.filter((t) => t.status === "progress"),
     completed: filteredTasks.filter((t) => t.status === "completed"),
   };
 
-  // ✅ DRAG LOGIC
+  // DRAG LOGIC
   const handleDragEnd = (result) => {
     const { source, destination } = result;
 
@@ -45,62 +51,67 @@ const Dashboard = ({
 
     const draggedTask = columns[sourceCol][source.index];
 
-    // ❌ No reorder inside filtered view (keeps logic simple & stable)
+    // No reorder inside filtered view 
     if (sourceCol === destCol) return;
 
-    // ✅ Move between columns
+    //  Move between columns
     moveTask(draggedTask.id, destCol);
   };
+
 
   return (
     <div className="p-4 md:p-6 bg-gray-100 flex-1">
 
       {/* 🔍 FILTER BAR */}
-<div className="mb-4 flex flex-wrap items-center gap-3">
-
-  {/* 🔍 Search */}
-  <input
-    value={search}
-    onChange={(e) => setSearch(e.target.value)}
-    placeholder="Search tasks..."
-    className="px-3 py-1.5 border border-gray-200 rounded-full text-sm w-44 
+      <div className="mb-4 flex flex-wrap items-center gap-3">
+        {/* 🔍 Search */}
+        <input
+          value={search}
+          onChange={(e) =>
+            setSearchParams({
+              search: e.target.value,
+              priority: filterPriority,
+            })
+          }
+          placeholder="Search tasks..."
+          className="px-3 py-1.5 border border-gray-200 rounded-full text-sm w-44 
                focus:outline-none focus:ring-1 focus:ring-blue-400"
-  />
+        />
 
-  {/* 🎯 Priority Chips */}
-  <div className="flex items-center gap-2">
+        {/* Priority Chips */}
+        <div className="flex items-center gap-2">
 
-    {["all", "low", "medium", "high"].map((p) => (
-      <button
-        key={p}
-        onClick={() => setFilterPriority(p)}
-        className={`
-          px-3 py-1 rounded-full text-xs capitalize transition
-          ${filterPriority === p
-            ? "bg-blue-500 text-white"
-            : "bg-gray-100 text-gray-600 hover:bg-gray-200"}
-        `}
-      >
-        {p}
-      </button>
-    ))}
+          {["all", "low", "medium", "high"].map((p) => (
+            <button
+              key={p}
+              onClick={() =>
+                setSearchParams({
+                  search,
+                  priority: p,
+                })
+              }
+              className={`px-3 py-1 rounded-full text-xs ${filterPriority === p
+                  ? "bg-blue-500 text-white"
+                  : "bg-gray-100"
+                }`}
+            >
+              {p}
+            </button>
+          ))}
 
-  </div>
+        </div>
 
-  {/* ❌ Clear */}
-  {(search || filterPriority !== "all") && (
-    <button
-      onClick={() => {
-        setSearch("");
-        setFilterPriority("all");
-      }}
-      className="text-xs text-gray-500 hover:text-red-500"
-    >
-      Clear ✕
-    </button>
-  )}
+        {/* Clear */}
+        {(search || filterPriority !== "all") && (
+          <button
+            onClick={() => setSearchParams({})}
+            className="text-xs text-gray-500 hover:text-red-500"
+          >
+            Clear ✕
+          </button>
+        )}
 
-</div>
+      </div>
 
       {/* 🧩 DRAG & DROP */}
       <DragDropContext onDragEnd={handleDragEnd}>

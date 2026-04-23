@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import { useSearchParams } from "react-router-dom";
 
 const useTasks = () => {
   const [task, setTask] = useState(() => {
@@ -8,13 +9,18 @@ const useTasks = () => {
 
   const [input, setInput] = useState("");
   const [priority, setPriority] = useState("medium");
-const [searchFilter, setSearchFilter] = useState("");
-const [filterPriority, setFilterPriority] = useState("all");
+// const [searchFilter, setSearchFilter] = useState("");
+// const [filterPriority, setFilterPriority] = useState("all");
 
   const [editTask, setEditTask] = useState(null);
   const [editTitle, setEditTitle] = useState("");
   const [editPriority, setEditPriority] = useState("medium");
+  
+  
+const [searchParams, setSearchParams] = useSearchParams();
 
+const search = searchParams.get("search") || "";
+const filterPriority = searchParams.get("priority") || "all";
 
   useEffect(() => {
     localStorage.setItem("tasks", JSON.stringify(task));
@@ -39,13 +45,13 @@ const [filterPriority, setFilterPriority] = useState("all");
     setTask((prev) => prev.filter((t) => t.id !== id));
   };
 
-  const updateTaskStatus = (id, newStatus) => {
-    setTask((prev) =>
-      prev.map((t) =>
-        t.id === id ? { ...t, status: newStatus } : t
-      )
-    );
-  };
+//   const updateTaskStatus = (id, newStatus) => {
+//     setTask((prev) =>
+//       prev.map((t) =>
+//         t.id === id ? { ...t, status: newStatus } : t
+//       )
+//     );
+//   };
 
 const moveTask = (updatedTasksOrId, newStatus) => {
   // CASE 1: FULL ARRAY (reorder case)
@@ -90,7 +96,7 @@ const moveTask = (updatedTasksOrId, newStatus) => {
     setPriority,
     addTask,
     deleteTask,
-    updateTaskStatus,
+    // updateTaskStatus,
     editTask,
     editTitle,
     setEditTitle,
@@ -100,10 +106,14 @@ const moveTask = (updatedTasksOrId, newStatus) => {
     saveEditTask,
     setEditTask,
     moveTask,
-    searchFilter,
-    setSearchFilter,
+    search,
+    searchParams,
     filterPriority,
-    setFilterPriority,
+    setSearchParams
+    // searchFilter,
+    // setSearchFilter,
+    // filterPriority,
+    // setFilterPriority,
 
   };
 };
