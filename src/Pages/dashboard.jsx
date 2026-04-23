@@ -3,17 +3,14 @@ import { DragDropContext, Droppable, Draggable } from "@hello-pangea/dnd";
 import TaskCard from "../Fetures/TaskCard";
 import useDebounce from "../Fetures/Hooks/useDebounce";
 
-
 const Dashboard = ({
   task,
   deleteTask,
   onEdit,
   moveTask,
-  // setFilterPriority,
   search,
   filterPriority,
   setSearchParams
-
 }) => {
 
   const debouncedSearch = useDebounce(search, 400);
@@ -29,8 +26,8 @@ const Dashboard = ({
       filterPriority === "all"
         ? true
         : t.priority === filterPriority;
-    return matchesSearch && matchesPriority;
 
+    return matchesSearch && matchesPriority;
   });
 
   // CREATE COLUMNS
@@ -49,22 +46,23 @@ const Dashboard = ({
     const sourceCol = source.droppableId;
     const destCol = destination.droppableId;
 
-    const draggedTask = columns[sourceCol][source.index];
+   const draggedTask = columns[sourceCol]?.[source.index];
 
-    // No reorder inside filtered view 
+if (!draggedTask) return;
+
+    // prevent same column reorder
     if (sourceCol === destCol) return;
 
-    //  Move between columns
-    moveTask(draggedTask.id, destCol);
+    // FIXED (_id)
+    moveTask(draggedTask._id, destCol);
   };
-
 
   return (
     <div className="p-4 md:p-6 bg-gray-100 flex-1">
 
-      {/* 🔍 FILTER BAR */}
+      {/* FILTER BAR */}
       <div className="mb-4 flex flex-wrap items-center gap-3">
-        {/* 🔍 Search */}
+
         <input
           value={search}
           onChange={(e) =>
@@ -78,9 +76,7 @@ const Dashboard = ({
                focus:outline-none focus:ring-1 focus:ring-blue-400"
         />
 
-        {/* Priority Chips */}
         <div className="flex items-center gap-2">
-
           {["all", "low", "medium", "high"].map((p) => (
             <button
               key={p}
@@ -90,18 +86,17 @@ const Dashboard = ({
                   priority: p,
                 })
               }
-              className={`px-3 py-1 rounded-full text-xs ${filterPriority === p
+              className={`px-3 py-1 rounded-full text-xs ${
+                filterPriority === p
                   ? "bg-blue-500 text-white"
                   : "bg-gray-100"
-                }`}
+              }`}
             >
               {p}
             </button>
           ))}
-
         </div>
 
-        {/* Clear */}
         {(search || filterPriority !== "all") && (
           <button
             onClick={() => setSearchParams({})}
@@ -113,7 +108,7 @@ const Dashboard = ({
 
       </div>
 
-      {/* 🧩 DRAG & DROP */}
+      {/* DRAG & DROP */}
       <DragDropContext onDragEnd={handleDragEnd}>
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
 
@@ -126,12 +121,10 @@ const Dashboard = ({
                   className="bg-white rounded-xl shadow-md flex flex-col min-h-300px md:h-[calc(100vh-120px)]"
                 >
 
-                  {/* Header */}
                   <div className="px-4 py-3 border-b font-semibold text-gray-700 capitalize">
                     {key} ({tasks.length})
                   </div>
 
-                  {/* Task List */}
                   <div className="flex-1 overflow-y-auto p-4 space-y-3">
 
                     {tasks.length === 0 && (
@@ -140,8 +133,8 @@ const Dashboard = ({
 
                     {tasks.map((t, index) => (
                       <Draggable
-                        key={t.id}
-                        draggableId={t.id.toString()}
+                        key={t._id} 
+                        draggableId={t._id.toString()} 
                         index={index}
                       >
                         {(provided) => (
@@ -152,7 +145,7 @@ const Dashboard = ({
                           >
                             <TaskCard
                               task={t}
-                              onDelete={() => deleteTask(t.id)}
+                              onDelete={() => deleteTask(t._id)} 
                               onEdit={() => onEdit(t)}
                             />
                           </div>

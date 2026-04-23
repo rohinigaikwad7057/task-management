@@ -1,90 +1,115 @@
 import { useEffect, useState } from "react";
 import { useSearchParams } from "react-router-dom";
 
+const API_URL = "http://localhost:5000/api/tasks";
+
 const useTasks = () => {
-  const [task, setTask] = useState(() => {
-    const saved = localStorage.getItem("tasks");
-    return saved ? JSON.parse(saved) : [];
-  });
+  const [task, setTask] = useState([]); 
 
   const [input, setInput] = useState("");
   const [priority, setPriority] = useState("medium");
-// const [searchFilter, setSearchFilter] = useState("");
-// const [filterPriority, setFilterPriority] = useState("all");
 
   const [editTask, setEditTask] = useState(null);
   const [editTitle, setEditTitle] = useState("");
   const [editPriority, setEditPriority] = useState("medium");
-  
-  
-const [searchParams, setSearchParams] = useSearchParams();
 
-const search = searchParams.get("search") || "";
-const filterPriority = searchParams.get("priority") || "all";
+  const [searchParams, setSearchParams] = useSearchParams();
 
+  const search = searchParams.get("search") || "";
+  const filterPriority = searchParams.get("priority") || "all";
+
+  // FETCH TASKS
   useEffect(() => {
-    localStorage.setItem("tasks", JSON.stringify(task));
-  }, [task]);
-
-  const addTask = () => {
-    if (!input.trim()) return;
-
-    const newTask = {
-      id: Date.now(),
-      title: input,
-      status: "todo",
-      priority,
-      createdAt: new Date().toISOString(),
+    const fetchTasks = async () => {
+      const res = await fetch(API_URL);
+      const data = await res.json();
+      setTask(data);
     };
 
+    fetchTasks();
+  }, []);
+
+  //  ADD TASK
+  const addTask = async () => {
+    if (!input.trim()) return;
+
+    const res = await fetch(API_URL, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        title: input,
+        status: "todo",
+        priority,
+      }),
+    });
+
+    const newTask = await res.json();
     setTask((prev) => [...prev, newTask]);
-    setInput("");
+    setInput(""); 
   };
 
-  const deleteTask = (id) => {
-    setTask((prev) => prev.filter((t) => t.id !== id));
+  // DELETE TASK
+  const deleteTask = async (id) => {
+    await fetch(`${API_URL}/${id}`, {
+      method: "DELETE",
+    });
+
+    setTask((prev) => prev.filter((t) => t._id !== id)); 
   };
 
-//   const updateTaskStatus = (id, newStatus) => {
-//     setTask((prev) =>
-//       prev.map((t) =>
-//         t.id === id ? { ...t, status: newStatus } : t
-//       )
-//     );
-//   };
+  // MOVE TASK (drag)
+const moveTask = async (id, status) => {
+  const currentTask = task.find((t) => t._id === id);
 
-const moveTask = (updatedTasksOrId, newStatus) => {
-  // CASE 1: FULL ARRAY (reorder case)
-  if (Array.isArray(updatedTasksOrId)) {
-    setTask(updatedTasksOrId);
-    return;
-  }
+  // ❌ Prevent duplicate update (VERY IMPORTANT)
+  if (!currentTask || currentTask.status === status) return;
 
-  //  CASE 2: MOVE BETWEEN COLUMNS
-  const updated = task.map((t) =>
-    t.id === updatedTasksOrId
-      ? { ...t, status: newStatus }
-      : t
+  // ✅ Optimistic UI update
+  setTask((prev) =>
+    prev.map((t) =>
+      t._id === id ? { ...t, status } : t
+    )
   );
 
-  setTask(updated);
+  try {
+    await fetch(`${API_URL}/${id}`, {
+      method: "PUT",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ status }),
+    });
+  } catch (err) {
+    console.error("Move failed", err);
+  }
 };
 
-
+  // EDIT CLICK
   const handleEditClick = (task) => {
     setEditTask(task);
     setEditTitle(task.title);
     setEditPriority(task.priority);
   };
 
-  const saveEditTask = () => {
+  // SAVE EDIT 
+  const saveEditTask = async () => {
+    await fetch(`${API_URL}/${editTask._id}`, {
+      method: "PUT",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        title: editTitle,
+        priority: editPriority,
+      }),
+    });
+
     setTask((prev) =>
       prev.map((t) =>
-        t.id === editTask.id
+        t._id === editTask._id
           ? { ...t, title: editTitle, priority: editPriority }
           : t
       )
     );
+
     setEditTask(null);
   };
 
@@ -96,7 +121,7 @@ const moveTask = (updatedTasksOrId, newStatus) => {
     setPriority,
     addTask,
     deleteTask,
-    // updateTaskStatus,
+    moveTask,
     editTask,
     editTitle,
     setEditTitle,
@@ -105,16 +130,9 @@ const moveTask = (updatedTasksOrId, newStatus) => {
     handleEditClick,
     saveEditTask,
     setEditTask,
-    moveTask,
     search,
-    searchParams,
     filterPriority,
-    setSearchParams
-    // searchFilter,
-    // setSearchFilter,
-    // filterPriority,
-    // setFilterPriority,
-
+    setSearchParams,
   };
 };
 
